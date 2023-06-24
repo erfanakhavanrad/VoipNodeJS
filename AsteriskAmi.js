@@ -28,11 +28,12 @@ voip.connect('admin', '0938204386', { host: '172.16.10.1', port: 5038 })
 
 
 function handleEvent(event) {
+ // console.log(event)
   sendLog(event)
   sleep(3000)
   if (event.Event === 'Cdr') {
     if (event.Destination !== '801' && event.Destination !== '802' && event.Destination !== '803' && event.Destination !== '804' && event.Destination !== '806') {
-      insVoipLog(event)
+      //insVoipLog(event)
     }
   }
 }
@@ -81,12 +82,14 @@ function sendLog(event) {
   // console.log(event)
   if (event.Event !== "RTCPSent" && event.Event !== "VarSet" && event.Event !== "RTCPReceived" && event.Event !== "LocalBridge" && event.Event !== "DeviceStateChange" && event.Event !== "QueueMemberStatus" && event.Event !== "ExtensionStatus" && event.Event !== "PeerStatus" && event.Event !== "BridgeCreate") {
 
+    // console.log(event.Event)
     // console.log(event)
-    if (event.Event === 'NewConnectedLine' || event.Event === 'NewCallerid' || event.Event === 'Cdr') {
+    if (event.Event === 'NewConnectedLine' || event.Event === 'NewCallerid' || event.Event === 'Cdr' || event.Event === 'Hangup') {
       // console.log(event.Event)
 
       if (event.ConnectedLineNum !== "<unknown>" && event.CallerIDNum !== "<unknown>" && event.ConnectedLineName !== "<unknown>" && event.CallerIDName !== "<unknown>") {
-        // console.log(event.CallerID)
+        // console.log(event.Event)
+        // console.log(event.CallerIDNum)
         // console.log(event.Destination)
           CallerIDNum = event.CallerIDNum,
           CallerIDName = event.CallerIDName,
@@ -94,7 +97,7 @@ function sendLog(event) {
           ConnectedLineNum = event.ConnectedLineNum,
           CallState = event.Event
         if (event.Event === 'Cdr') {
-          // console.log("its cdr")
+          console.log(event)
           CallerID = event.CallerID.replace("<", "/ ").replace(">", "").replace("\"", "").replace("\"", "").split("/")[1].trim()
           Destination = event.Destination
           var logMessage = {
