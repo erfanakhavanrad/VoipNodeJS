@@ -13,9 +13,17 @@ exports logMessage for use in websocket or other files of project
 
 -->Event.event     
  ------cdr وقتی تماس تموم میشه 
+ 
+ 
  ------NewConnectedLine وقتی یک تماس بر قرار میشه 
+ 
+ 
  ------NewCallerid وقتی یک تماس بر قرار میشه
+ 
+ 
   ): .باقی حالت هاش به خاظر دیتای ناقص بدرد نمیخورن 
+  
+  
   Note :>>  the object type in cdr is diffrent with others so we have a condition for creating object in "sendLog" function  
 
  ---> methods :
