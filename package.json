@@ -1,10 +1,10 @@
 {
   "name": "taraz_voip",
   "version": "1.0.0",
-  "description": "connect to asterisk bu node js",
+  "description": "connect to asterisk by node js",
   "main": "index.js",
   "scripts": {
-    "test": "node main.js"
+    "test": "node voip.js"
   },
   "author": "ArefAzizi",
   "license": "ISC",

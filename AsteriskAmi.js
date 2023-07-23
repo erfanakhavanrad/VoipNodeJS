@@ -1,5 +1,5 @@
 const AmiClient = require('asterisk-ami-client')
-const main = require('./main');
+// const main = require('./voip');
 const axios = require('axios');
 const sleep = require('sleep-promise');
 const { WebSocketServer } = require('ws');
@@ -28,24 +28,28 @@ voip.connect('admin', '0938204386', { host: '172.16.10.1', port: 5038 })
 
 
 function handleEvent(event) {
- // console.log(event)
+	//console.log(event)
   sendLog(event)
-  sleep(3000)
   if (event.Event === 'Cdr') {
     if (event.Destination !== '801' && event.Destination !== '802' && event.Destination !== '803' && event.Destination !== '804' && event.Destination !== '806') {
-      //insVoipLog(event)
-    }
+		try{
+      insVoipLog(event)
+		} catch (error) {
+	insVoipLog(event)
+    console.log(error)
+  }
+}
   }
 }
 
 
-function insVoipLog(event) {
+async function insVoipLog(event) {
   try {
 
     var caller = event.CallerID.replace("<", "/ ").replace(">", "").replace("\"", "").replace("\"", "");
     event.CallerID = caller
     sleep(2000)
-    axios.post('http://localhost:8080/tws/crm/voiplogs', {
+    await axios.post('http://localhost:8001/tws/crm/voiplogs', {
       Event: event.Event,
       Privilege: event.Privilege,
       AccountCode: event.AccountCode,
@@ -67,9 +71,7 @@ function insVoipLog(event) {
       UniqueID: event.UniqueID,
       UserField: event.UserField
     }, {
-      // headers: {
-      //   Authorization: 'Bearer ' + main.token
-      // }
+      
     })
   } catch (error) {
     console.log(error)
@@ -77,27 +79,22 @@ function insVoipLog(event) {
 }
 
 function sendLog(event) {
-  // if (main.internalNumber == null) { exports.logMessage = null}
-  // else {DeviceStateChange
-  // console.log(event)
+  
   if (event.Event !== "RTCPSent" && event.Event !== "VarSet" && event.Event !== "RTCPReceived" && event.Event !== "LocalBridge" && event.Event !== "DeviceStateChange" && event.Event !== "QueueMemberStatus" && event.Event !== "ExtensionStatus" && event.Event !== "PeerStatus" && event.Event !== "BridgeCreate") {
 
-    // console.log(event.Event)
     // console.log(event)
-    if (event.Event === 'NewConnectedLine' || event.Event === 'NewCallerid' || event.Event === 'Cdr' || event.Event === 'Hangup') {
+    if (event.Event === 'NewConnectedLine' || event.Event === 'NewCallerid' || event.Event === 'Cdr') {
       // console.log(event.Event)
 
       if (event.ConnectedLineNum !== "<unknown>" && event.CallerIDNum !== "<unknown>" && event.ConnectedLineName !== "<unknown>" && event.CallerIDName !== "<unknown>") {
-        // console.log(event.Event)
-        // console.log(event.CallerIDNum)
-        // console.log(event.Destination)
+
           CallerIDNum = event.CallerIDNum,
           CallerIDName = event.CallerIDName,
           ConnectedLineName = event.ConnectedLineName,
           ConnectedLineNum = event.ConnectedLineNum,
           CallState = event.Event
         if (event.Event === 'Cdr') {
-          console.log(event)
+          // console.log("its cdr")
           CallerID = event.CallerID.replace("<", "/ ").replace(">", "").replace("\"", "").replace("\"", "").split("/")[1].trim()
           Destination = event.Destination
           var logMessage = {
@@ -110,7 +107,6 @@ function sendLog(event) {
             CallState
           };
         } else {
-          // console.log("its not cdr")
           var logMessage = {
             CallerIDNum,
             CallerIDName,
@@ -118,48 +114,22 @@ function sendLog(event) {
             ConnectedLineNum,
             CallState
           };
+		 // console.log(logMessage)
         }
-        // var logMessage = 
-        //   {
-        //   0: CallerIDNum,
-        //   1:CallerIDName,
-        //   2:ConnectedLineName, 
-        //   3:ConnectedLineNum
-        //   }
-        // var logMessage = [
-        //    CallerIDNum,
-        //    CallerIDName,
-        //    ConnectedLineName,
-        //    ConnectedLineNum
-        // ];
-        // console.log(CallerID)
-        // console.log(CallerID[0])
-        // console.log(CallerID[1])
-        // var logMessage = {
-        //   CallerIDNum,
-        //   CallerIDName,
-        //   ConnectedLineName,
-        //   ConnectedLineNum,
-        //   CallerID,
-        //   Destination,
-        //   CallState
-        // };
+      
         module.exports.logMessage = logMessage;
-        // if (event.Event === "Hangup") {
-        //   console.log('hanged up')
-        //   exports.logMessage = null
-        // }
       }
     }
+	//console.log(exports.logMessage)
   }
   // }
   return logMessage
 }
 
-
+socket.setKeepAlive(true);
 sockserver.on('connection', ws => {
   console.log('New client connected!')
-  // console.log(exports.logMessage)
+  console.log(exports.logMessage)
   // var test = sendLog()
   //  console.log(test)
   // while(true){
